@@ -24,7 +24,7 @@
     }
 
     function stripOneNetworkStuff(input, space) {
-        var refStr = space ? '#' : '#';
+        var refStr = space ? ' #' : '#';
         var input1 = input.replace('https://one.network/?GBTMI', refStr);
         var input2 = input1.replace('https://one.network/?GB', refStr);
         return input2;
