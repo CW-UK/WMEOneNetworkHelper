@@ -2,7 +2,7 @@
 // @name           WME one.network helper
 // @description    Retains just the reference when pasting the share URL
 // @namespace      https://github.com/CW-UK/WMEOneNetworkHelper
-// @version        0.6
+// @version        0.7.1
 // @match           *://*.waze.com/*editor*
 // @exclude         *://*.waze.com/user/editor*
 // @author         Craig24x7, JamesKingdom
@@ -17,23 +17,30 @@
 (function() {
 
     'use strict';
-    var closureDesc;
 
+    // wait for WME to be ready
     document.addEventListener("wme-ready", initOneNetHelper, {
         once: true
     });
 
+    // initialise the script
     function initOneNetHelper() {
         createOneNetHelperTab();
+        createOneNetHelperDefaults();
         console.log('WME one.network helper: Loaded');
     }
 
+    // create default config settings
+    function createOneNetHelperDefaults() {
+        if (!GM_getValue('startTime')) { GM_setValue('startTime', '08:00'); }
+        if (!GM_getValue('endTime')) { GM_setValue('endTime', '18:00'); }
+        if (GM_getValue('onhEnabled').length < 1) { GM_setValue('onhEnabled', true); }
+    }
+
+    // create the tab in side panel
     function createOneNetHelperTab() {
         const { tabLabel, tabPane } = W.userscripts.registerSidebarTab("wme-onenethelper");
-        if (!GM_getValue("startTime")) { GM_setValue("startTime", "08:00"); }
-        if (!GM_getValue("endTime")) { GM_setValue("endTime", "18:00"); }
-        if (GM_getValue("onhEnabled").length < 1) { GM_setValue("onhEnabled", true); }
-        var onhEnabledCheckbox = GM_getValue("onhEnabled") ? " checked" : "";
+        var onhEnabledCheckbox = GM_getValue('onhEnabled') ? " checked" : "";
         tabLabel.innerText = '🚧';
         tabLabel.title = 'WME one.network Helper';
         tabPane.id = 'sidepanel-wme-onenethelper';
@@ -42,8 +49,8 @@
         tabPane.innerHTML += '<input type="checkbox" id="wme-onenethelper-enabled"'+onhEnabledCheckbox+'> <label for="onhenabled">Enable script?</label>';
         tabPane.innerHTML += '<hr style="border-top: 3px solid #bbb;" />';
         tabPane.innerHTML += '<h6>Default Start/End Times</h6>';
-        tabPane.innerHTML += 'Start at <input type="text" id="wme-onenethelperStartTime" value="' + GM_getValue("startTime") + '" style="width: 60px; text-align: center;"> ';
-        tabPane.innerHTML += 'End at <input type="text" id="wme-onenethelperEndTime" value="' + GM_getValue("endTime") + '" style="width: 60px; text-align: center;"><br />';
+        tabPane.innerHTML += 'Start at <input type="text" id="wme-onenethelperStartTime" value="' + GM_getValue('startTime') + '" style="width: 60px; text-align: center;"> ';
+        tabPane.innerHTML += 'End at <input type="text" id="wme-onenethelperEndTime" value="' + GM_getValue('endTime') + '" style="width: 60px; text-align: center;"><br />';
         tabPane.innerHTML += '<hr style="border-top: 3px solid #bbb;" />';
         tabPane.innerHTML += '<h6>Settings</h6>';
         tabPane.innerHTML += 'auto-fill reference<br />';
@@ -92,9 +99,15 @@
     });
 
     // Update settings from script tab
-    $(document).on('change', '#wme-onenethelper-enabled', function() {
+    $(document).on('change', '#wme-onenethelper-enabled', function() { // enable/disable checkbox
         if (this.checked) { GM_setValue("onhEnabled", true); console.log("enabled"); }
-        else { GM_setValue("onhEnabled", false); console.log("disabled"); }
+        else { GM_setValue('onhEnabled', false); console.log("disabled"); }
+    });
+    $(document).on('keyup', '#wme-onenethelperStartTime', function() { // default start time
+        GM_setValue('startTime', $(this).val());
+    });
+    $(document).on('keyup', '#wme-onenethelperEndTime', function() { // default end time
+        GM_setValue('endTime', $(this).val());
     });
 
 })();
