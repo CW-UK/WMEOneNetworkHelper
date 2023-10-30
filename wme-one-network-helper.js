@@ -2,7 +2,7 @@
 // @name           WME one.network helper
 // @description    Retains just the reference when pasting the share URL
 // @namespace      https://github.com/CW-UK/WMEOneNetworkHelper
-// @version        0.5
+// @version        0.6
 // @match           *://*.waze.com/*editor*
 // @exclude         *://*.waze.com/user/editor*
 // @author         Craig24x7, JamesKingdom
@@ -44,9 +44,7 @@
     }
 
     $(document).on('blur', '#closure_reason', function() {
-        var newReference = this.value;
-        newReference = newReference.replace('https://one.network/?GBTMI', '#');
-        this.value = newReference.replace('https://one.network/?GB', '#');
+        $(this).val(stripOneNetworkStuff(this.value, false));
     });
 
     $(document).on('focus', '#closure_reason', function() {
