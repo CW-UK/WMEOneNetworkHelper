@@ -61,11 +61,15 @@
     // Remove one.network URL from references, optionally include a space before.
     function stripOneNetworkStuff(input, space) {
         var refStr = space ? ' #' : '#';
+        return refStr + getOneNetworkRefRegex(input);
+        // TODO: Remove this and just use regex to extract?
+        /*
         if (input.includes("Schedule:")) { return refStr + getOneNetworkRefRegex(input); }
         var input1 = input.replace('https://one.network/?GBTMI', refStr);
         var input2 = input1.replace('https://one.network/?GB', refStr);
         var input3 = input2.replace('https://one.network/?tmi=GB', refStr);
         return input3;
+        */
     }
 
     // Get the reference number using regex
@@ -101,8 +105,8 @@
                 return;
             }
             $(this).val(stripOneNetworkStuff(elem.text(), true));
-            changeTimeField($("#edit-panel div.closures div.form-group.start-date-form-group > div.date-time-picker > div > input"), '08:00');
-            changeTimeField($("#edit-panel div.closures div.form-group.end-date-form-group > div.date-time-picker > div > input"), '18:00');
+            changeTimeField($("#edit-panel div.closures div.form-group.start-date-form-group > div.date-time-picker > div > input"), GM_getValue('startTime'));
+            changeTimeField($("#edit-panel div.closures div.form-group.end-date-form-group > div.date-time-picker > div > input"), GM_getValue('endTime'));
         }
     });
 
