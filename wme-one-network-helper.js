@@ -2,7 +2,7 @@
 // @name           WME one.network helper
 // @description    Retains just the reference when pasting the share URL
 // @namespace      https://github.com/CW-UK/WMEOneNetworkHelper
-// @version        0.7.2
+// @version        0.7.3
 // @match           *://*.waze.com/*editor*
 // @exclude         *://*.waze.com/user/editor*
 // @author         Craig24x7, JamesKingdom
@@ -61,7 +61,9 @@
     // Remove one.network URL from references, optionally include a space before.
     function stripOneNetworkStuff(input, space) {
         var refStr = space ? ' #' : '#';
-        return refStr + getOneNetworkRefRegex(input);
+        var regex = /(?:https\:.*\/\?)(?:GB|GBTMI|tmi=)(\d{5,})/;
+        return refStr + input.replace(regex, "$1");
+        //return refStr + getOneNetworkRefRegex(input);
         // TODO: Remove this and just use regex to extract?
         /*
         if (input.includes("Schedule:")) { return refStr + getOneNetworkRefRegex(input); }
@@ -73,6 +75,7 @@
     }
 
     // Get the reference number using regex
+    // TODO: Remove this if stripOneNetworkStuff works fine going forward
     function getOneNetworkRefRegex(input) {
         var regex = /(?:GB|GBTMI)(\d{5,})/;
         return input.match(regex)[1];
