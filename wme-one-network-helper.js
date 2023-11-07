@@ -2,7 +2,7 @@
 // @name           WME one.network helper
 // @description    Retains just the reference when pasting the share URL
 // @namespace      https://github.com/CW-UK/WMEOneNetworkHelper
-// @version        0.7.3
+// @version        0.7.4
 // @match           *://*.waze.com/*editor*
 // @exclude         *://*.waze.com/user/editor*
 // @author         Craig24x7, JamesKingdom
@@ -54,6 +54,7 @@
         tabPane.innerHTML += '<hr style="border-top: 3px solid #bbb;" />';
         tabPane.innerHTML += '<h6>Settings</h6>';
         tabPane.innerHTML += 'auto-fill reference<br />';
+        tabPane.innerHTML += 'replace one.net URLs with ref<br />';
         tabPane.innerHTML += 'auto-replace ref from pasted URL<br />';
         tabPane.innerHTML += 'only replace 00:00-23:59 times';
     }
@@ -61,8 +62,9 @@
     // Remove one.network URL from references, optionally include a space before.
     function stripOneNetworkStuff(input, space) {
         var refStr = space ? ' #' : '#';
-        var regex = /(?:https\:.*\/\?)(?:GB|GBTMI|tmi=)(\d{5,})/;
-        return refStr + input.replace(regex, "$1");
+        input = input.replace("URL: ", "");
+        var regex = /(?:https\:.*\/\?)(?:GB|GBTMI|GMTM|tmi=)(\d{5,}).*/;
+        return input.replace(regex, refStr + "$1");
         //return refStr + getOneNetworkRefRegex(input);
         // TODO: Remove this and just use regex to extract?
         /*
@@ -78,6 +80,12 @@
     // TODO: Remove this if stripOneNetworkStuff works fine going forward
     function getOneNetworkRefRegex(input) {
         var regex = /(?:GB|GBTMI)(\d{5,})/;
+        return input.match(regex)[1];
+    }
+
+    // Get the time from an input string in format 00:00
+    function getTimeFromString(input) {
+        var regex = /(\d{2}\:\d{2})/;
         return input.match(regex)[1];
     }
 
@@ -102,14 +110,20 @@
 
     // Fill reference from MP when focus is given (by default in WME when opening the closure panel)
     $(document).on('focus', '#closure_reason', function() {
-        var elem = $('#panel-container > div > div > div.top-section > div > div > div > div.collapsible.content > p.extraInfo');
-        if (elem.length > 0) {
+        var infoElem = $('#panel-container > div > div > div.top-section > div > div > div > div.collapsible.content > p.extraInfo');
+        var startElem = $('#panel-container > div > div > div.top-section > div > div > div > div.collapsible.content > div.startTime');
+        var endElem = $('#panel-container > div > div > div.top-section > div > div > div > div.collapsible.content > div.endTime');
+        if (infoElem.length > 0) {
             if ($(this).val().length > 0) {
                 return;
             }
-            $(this).val(stripOneNetworkStuff(elem.text(), true));
-            changeTimeField($("#edit-panel div.closures div.form-group.start-date-form-group > div.date-time-picker > div > input"), GM_getValue('startTime'));
-            changeTimeField($("#edit-panel div.closures div.form-group.end-date-form-group > div.date-time-picker > div > input"), GM_getValue('endTime'));
+            $(this).val(stripOneNetworkStuff(infoElem.text(), true));
+            var startTime = getTimeFromString(startElem.text());
+            var endTime = getTimeFromString(endElem.text());
+            //changeTimeField($("#edit-panel div.closures div.form-group.start-date-form-group > div.date-time-picker > div > input"), GM_getValue('startTime'));
+            //changeTimeField($("#edit-panel div.closures div.form-group.end-date-form-group > div.date-time-picker > div > input"), GM_getValue('endTime'));
+            changeTimeField($("#edit-panel div.closures div.form-group.start-date-form-group > div.date-time-picker > div > input"), startTime);
+            changeTimeField($("#edit-panel div.closures div.form-group.end-date-form-group > div.date-time-picker > div > input"), endTime);
         }
     });
 
